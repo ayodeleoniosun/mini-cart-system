@@ -32,6 +32,10 @@ class ResponseMacroServiceProvider extends ServiceProvider
             ], $statusCode);
         });
 
+        Response::macro('deleted', function (int $statusCode = 204) {
+            return Response::json([], $statusCode);
+        });
+
         Response::macro('error', function (string $message, int $statusCode = 400) {
             return Response::json([
                 'status'  => 'error',

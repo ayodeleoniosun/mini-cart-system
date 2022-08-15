@@ -14,8 +14,15 @@
 use Tests\Traits\CreateProduct;
 use Tests\Traits\CreateSession;
 use Tests\Traits\CreateCart;
+use Tests\Traits\CreateCartItem;
 
-uses(Tests\TestCase::class, CreateProduct::class, CreateSession::class, CreateCart::class)->in('Feature', 'Unit');
+uses(
+    Tests\TestCase::class,
+    CreateProduct::class,
+    CreateSession::class,
+    CreateCart::class,
+    CreateCartItem::class
+)->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------

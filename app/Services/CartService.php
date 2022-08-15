@@ -3,9 +3,10 @@
 namespace App\Services;
 
 use App\Exceptions\CustomException;
-use App\Http\Resources\CartCollection;
+use App\Http\Resources\CartItemCollection;
 use App\Models\Cart;
-use App\Models\Session;
+use App\Models\CartItem;
+use App\Repositories\Interfaces\CartItemRepositoryInterface;
 use App\Repositories\Interfaces\CartRepositoryInterface;
 use App\Repositories\Interfaces\SessionRepositoryInterface;
 use App\Services\Interfaces\CartServiceInterface;
@@ -15,91 +16,102 @@ class CartService implements CartServiceInterface
 {
     protected CartRepositoryInterface $cartRepo;
 
+    protected CartItemRepositoryInterface $cartItemRepo;
+
     protected SessionRepositoryInterface $sessionRepo;
 
     /**
      * @param CartRepositoryInterface $cartRepo
+     * @param CartItemRepositoryInterface $cartItemRepo
      * @param SessionRepositoryInterface $sessionRepo
      */
-    public function __construct(CartRepositoryInterface $cartRepo, SessionRepositoryInterface $sessionRepo)
+
+    public function __construct(
+        CartRepositoryInterface     $cartRepo,
+        CartItemRepositoryInterface $cartItemRepo,
+        SessionRepositoryInterface  $sessionRepo)
     {
         $this->cartRepo = $cartRepo;
+        $this->cartItemRepo = $cartItemRepo;
         $this->sessionRepo = $sessionRepo;
     }
 
-    public function add(array $data): Cart
+    public function addCartItems(array $data): CartItem
     {
+        /*
+            Thought flow for adding cart items:
+
+            1. Check if the guest user has a session record. If no, create a new session record, else, retrieve the existing session record.
+            2. Check if a cart record exist for that session (guest).  If no, create a new cart record, else, retrieve the existing cart record.
+
+            NOTE: A guest user can only have a single cart and in that cart are multiple cart items (One-to-many relationship).
+
+            3. Check if the item to be added has already been added or soft deleted before.
+            4. If the record exist but was soft deleted, update the quantity with the new quantity and null the deleted_at column
+                in order to avoid creating identical cart items and prevent redundancy of data.
+            5. However, if the record exist but was not soft deleted, increment the quantity with the new quantity.
+         */
+
         $ipAddress = $data['ip_address'];
         $userAgent = $data['user_agent'];
         $productId = $data['product_id'];
+        $quantity = $data['quantity'];
 
         $session = $this->sessionRepo->getOrCreateSession($ipAddress, $userAgent);
+        $cart = $this->cartRepo->getOrCreateCart($session->id);
+        $cartItem = $this->cartItemRepo->getCartItem($cart->id, $productId);
 
-        $itemExistInCart = $this->cartRepo->itemExistInCart($productId, $session->id);
+        $cartItemData = [
+            'cart_id'    => $cart->id,
+            'product_id' => $productId,
+            'quantity'   => $quantity
+        ];
 
-        if ($itemExistInCart) {
-            throw new CustomException('Item already added to cart.');
+        if ($cartItem) {
+            return $this->cartItemRepo->update($cartItemData);
         }
 
-        $data['session_id'] = $session->id;
-
-        return $this->cartRepo->add($data);
+        return $this->cartItemRepo->add($cartItemData);
     }
 
     /**
      * @throws CustomException
      */
-    public function delete(array $data): bool
+    public function delete(string $ipAddress, int $cartItemId): bool
     {
-        $session = $this->validateSession($data['ip_address']);
+        $cart = $this->hasValidCart($ipAddress);
 
-        $status = $this->cartRepo->delete($data['cart_id'], $session->id);
+        $status = $this->cartItemRepo->delete($cartItemId, $cart->id);
 
         if (!$status) {
             throw new CustomException('Unable to delete item from cart. Check if the item exist.');
         }
 
-        return $status;
+        return true;
     }
 
     /**
      * @throws CustomException
      */
-    public function getUserCartItems(Request $request): CartCollection
+    public function getUserCartItems(Request $request): CartItemCollection
     {
-        $session = $this->validateSession($request->ip());
-        $deleted = false;
+        $cart = $this->hasValidCart($request->ip());
 
-        if ($request->filled('deleted')) {
-            $deleted = filter_var($request->deleted, FILTER_VALIDATE_BOOLEAN);
-        }
+        $cartItems = $this->cartItemRepo->getUserCartItems($cart);
 
-        $carts = $this->cartRepo->getUserCartItems($session->id, $deleted);
-
-        if ($carts->total() == 0) {
-            $errorMessage = $deleted ? 'You have not removed any item from your cart.' : 'You have not added any item to cart.';
-            throw new CustomException($errorMessage, 404);
-        }
-
-        return new CartCollection($carts);
+        return new CartItemCollection($cartItems);
     }
 
-    public function getDeletedCartItems(Request $request): CartCollection
+    public function getDeletedCartItems(): CartItemCollection
     {
-        $carts = $this->cartRepo->getDeletedCartItems();
-
-        if ($carts->total() == 0) {
-            throw new CustomException('No item has been deleted from cart', 404);
-        }
-
-        return new CartCollection($carts);
+        $cartItems = $this->cartItemRepo->getDeletedCartItems();
+        return new CartItemCollection($cartItems);
     }
-
 
     /**
      * @throws CustomException
      */
-    public function validateSession(string $ipAddress): Session
+    public function hasValidCart(string $ipAddress): Cart
     {
         $session = $this->sessionRepo->getSessionByIpAddress($ipAddress);
 
@@ -107,6 +119,14 @@ class CartService implements CartServiceInterface
             throw new CustomException('Invalid account.', 403);
         }
 
-        return $session;
+        $cart = $this->cartRepo->hasValidCart($session->id);
+
+        if (!$cart) {
+            throw new CustomException('No cart yet.', 403);
+        }
+
+        return $cart;
     }
+
+    //analysis for removed cart items
 }

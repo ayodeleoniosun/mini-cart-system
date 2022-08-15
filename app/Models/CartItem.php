@@ -5,22 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Cart extends Model
+class CartItem extends Model
 {
     use SoftDeletes, HasFactory;
 
     protected $guarded = ['id'];
 
-    public function session(): BelongsTo
+    public function cart(): BelongsTo
     {
-        return $this->belongsTo(Session::class);
+        return $this->belongsTo(Cart::class);
     }
 
-    public function cartItems(): HasMany
+    public function product(): BelongsTo
     {
-        return $this->hasMany(CartItem::class);
+        return $this->belongsTo(Product::class)->select('id', 'name', 'price');
     }
 }

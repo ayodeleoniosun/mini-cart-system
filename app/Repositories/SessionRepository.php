@@ -17,7 +17,7 @@ class SessionRepository implements SessionRepositoryInterface
         $this->session = $session;
     }
 
-    public function getSessionByIpAddress(string $ipAddress): Session|null
+    public function getSessionByIpAddress(string $ipAddress): ?Session
     {
         return $this->session->where('ip_address', $ipAddress)->first();
     }

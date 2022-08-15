@@ -6,7 +6,7 @@ use App\Models\Session;
 
 interface SessionRepositoryInterface
 {
-    public function getSessionByIpAddress(string $ipAddress): Session|null;
+    public function getSessionByIpAddress(string $ipAddress): ?Session;
 
     public function getOrCreateSession(string $ipAddress, string $userAgent): Session;
 }

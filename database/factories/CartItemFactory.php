@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Cart>
  */
-class CartFactory extends Factory
+class CartItemFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,9 @@ class CartFactory extends Factory
     public function definition()
     {
         return [
-            'session_id' => 1
+            'cart_id'    => 1,
+            'product_id' => 1,
+            'quantity'   => 1
         ];
     }
 }

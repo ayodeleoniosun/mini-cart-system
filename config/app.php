@@ -197,6 +197,7 @@ return [
 
         //Repositories
         App\Providers\Repositories\CartRepositoryProvider::class,
+        App\Providers\Repositories\CartItemRepositoryProvider::class,
         App\Providers\Repositories\SessionRepositoryProvider::class,
 
         //Service

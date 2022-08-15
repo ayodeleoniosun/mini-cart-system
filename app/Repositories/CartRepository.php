@@ -4,13 +4,10 @@ namespace App\Repositories;
 
 use App\Models\Cart;
 use App\Repositories\Interfaces\CartRepositoryInterface;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class CartRepository implements CartRepositoryInterface
 {
     private Cart $cart;
-
-    protected int $perPage = 10;
 
     /**
      * @param Cart $cart
@@ -20,41 +17,19 @@ class CartRepository implements CartRepositoryInterface
         $this->cart = $cart;
     }
 
-    public function add(array $data): Cart
+    public function getOrCreateCart(int $sessionId): Cart
     {
-        return $this->cart->create([
-            'product_id' => $data['product_id'],
-            'session_id' => $data['session_id']
-        ]);
-    }
+        $cart = $this->cart->where(['session_id' => $sessionId])->first();
 
-    public function delete(string $cartId, string $sessionId): bool
-    {
-        return $this->cart->where([
-            'id'         => $cartId,
-            'session_id' => $sessionId
-        ])->delete();
-    }
-
-    public function itemExistInCart(string $productId, string $sessionId): bool
-    {
-        return $this->cart->where([
-            'product_id' => $productId,
-            'session_id' => $sessionId
-        ])->exists();
-    }
-
-    public function getUserCartItems(string $sessionId, bool $deleted = false): LengthAwarePaginator
-    {
-        if ($deleted) {
-            return $this->cart->onlyTrashed()->where('session_id', $sessionId)->paginate($this->perPage);
+        if (!$cart) {
+            $cart = $this->cart->create(['session_id' => $sessionId]);
         }
 
-        return $this->cart->where('session_id', $sessionId)->paginate($this->perPage);
+        return $cart;
     }
 
-    public function getDeletedCartItems(): LengthAwarePaginator
+    public function hasValidCart(int $sessionId): ?Cart
     {
-        return $this->cart->onlyTrashed()->paginate($this->perPage);
+        return $this->cart->where(['session_id' => $sessionId])->first();
     }
 }

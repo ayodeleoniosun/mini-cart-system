@@ -3,52 +3,46 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddToCartRequest;
-use App\Http\Resources\CartCollection;
+use App\Http\Resources\CartItemCollection;
 use App\Services\Interfaces\CartServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    private CartServiceInterface $cart;
+    private CartServiceInterface $cartService;
 
-    public function __construct(CartServiceInterface $cart)
+    public function __construct(CartServiceInterface $cartService)
     {
-        $this->cart = $cart;
+        $this->cartService = $cartService;
     }
 
     public function index(Request $request)
     {
-        return $this->cart->getUserCartItems($request);
+        return $this->cartService->getUserCartItems($request);
     }
 
     public function store(AddToCartRequest $request): JsonResponse
     {
-        $data = [
+        $response = $this->cartService->addCartItems([
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'product_id' => $request->product_id,
-        ];
-
-        $response = $this->cart->add($data);
+            'quantity'   => $request->quantity
+        ]);
 
         return response()->success($response, 'Item successfully added to cart.', 201);
     }
 
-    public function delete(Request $request, string $cartId): JsonResponse
+    public function delete(Request $request, int $cartItemId): JsonResponse
     {
-        $data = [
-            'ip_address' => $request->ip(),
-            'cart_id'    => $cartId,
-        ];
+        $this->cartService->delete($request->ip(), $cartItemId);
 
-        $response = $this->cart->delete($data);
-
-        return response()->success($response, 'Item successfully removed from cart.');
+        return response()->deleted();
     }
 
-    public function deletedItems(Request $request): CartCollection
+    public function getDeletedItems(): CartItemCollection
     {
-        return $this->cart->getDeletedCartItems($request);
+        return $this->cartService->getDeletedCartItems();
     }
 }

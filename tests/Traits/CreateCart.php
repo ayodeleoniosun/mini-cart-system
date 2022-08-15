@@ -3,6 +3,7 @@
 namespace Tests\Traits;
 
 use App\Models\Cart;
+use App\Models\CartItem;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 
 trait CreateCart
@@ -12,24 +13,16 @@ trait CreateCart
         return Cart::factory()->create();
     }
 
-    protected function createCartItems(array $products): array
+    protected function createCarts(array $sessions): array
     {
         $carts = [];
-
-        collect($products)->map(function ($product) use (&$carts) {
+        collect($sessions)->map(function ($session) use (&$carts) {
             $carts[] = Cart::factory()->state(new Sequence(
-                ['product_id' => $product]
+                ['session_id' => $session]
             ))->create();
         });
 
         return $carts;
     }
 
-    protected function deleteCartItems(array $items): void
-    {
-        collect($items)->map(function ($item) {
-            $item->deleted_at = now();
-            $item->save();
-        });
-    }
 }

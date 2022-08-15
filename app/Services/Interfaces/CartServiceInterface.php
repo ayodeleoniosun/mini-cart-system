@@ -2,20 +2,17 @@
 
 namespace App\Services\Interfaces;
 
-use App\Http\Resources\CartCollection;
-use App\Models\Cart;
-use App\Models\Session;
+use App\Http\Resources\CartItemCollection;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
 
 interface CartServiceInterface
 {
-    public function add(array $data): Cart;
+    public function addCartItems(array $data): CartItem;
 
-    public function delete(array $data): bool;
+    public function delete(string $ipAddress, int $cartItemId): bool;
 
-    public function validateSession(string $ipAddress): Session;
+    public function getUserCartItems(Request $request): CartItemCollection;
 
-    public function getUserCartItems(Request $request): CartCollection;
-
-    public function getDeletedCartItems(Request $request): CartCollection;
+    public function getDeletedCartItems(): CartItemCollection;
 }

@@ -18,7 +18,7 @@ Route::prefix('carts')->group(function () {
     Route::controller(CartController::class)->group(function () {
         Route::get('/', 'index')->name('cart.index');
         Route::post('/', 'store')->name('cart.store');
-        Route::delete('/{cartId}', 'delete')->name('cart.delete');
-        Route::get('/items/deleted', 'deletedItems')->name('cart.deletedItems');
+        Route::delete('/{cartItemId}', 'delete')->name('cart.delete');
+        Route::get('/items/deleted', 'getDeletedItems')->name('cart.getDeletedItems');
     });
 });

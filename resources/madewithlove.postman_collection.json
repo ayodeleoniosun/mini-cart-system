@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Get User Cart",
+			"name": "Get User Cart Items",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -61,7 +61,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"product_id\" : 2\n}",
+					"raw": "{\n    \"product_id\" : 1,\n    \"quantity\": 3\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -86,13 +86,13 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/carts/10",
+					"raw": "{{baseUrl}}/carts/3",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"carts",
-						"10"
+						"3"
 					]
 				}
 			},
@@ -122,7 +122,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "https://shopping.test/api",
+			"value": "http://shopping.test:8084/api",
 			"type": "string"
 		}
 	]

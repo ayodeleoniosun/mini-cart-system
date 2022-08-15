@@ -39,12 +39,10 @@ class CartItemRepository implements CartItemRepositoryInterface
         $cartItem = $this->getCartItem($cartId, $productId);
 
         if ($cartItem->trashed()) {
-            $cartItem->quantity = $quantity;
             $cartItem->deleted_at = null;
-        } else {
-            $cartItem->quantity += $quantity;
         }
 
+        $cartItem->quantity = $quantity;
         $cartItem->save();
 
         $cartItem->refresh();

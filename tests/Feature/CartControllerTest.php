@@ -51,7 +51,7 @@ test('can get all user cart items', function () {
 
 // tests for store method starts here
 
-test('cannot add invalid product to cart', function () {
+test('cannot add non-existent product to cart', function () {
     $data = [
         'ip_address' => $this->faker->ipv4(),
         'user_agent' => $this->faker->userAgent,
@@ -69,6 +69,28 @@ test('cannot add invalid product to cart', function () {
             'message',
             'errors' => [
                 'product_id' => []
+            ],
+        ]);
+});
+
+test('cannot add product with zero quantity to cart', function () {
+    $data = [
+        'ip_address' => $this->faker->ipv4(),
+        'user_agent' => $this->faker->userAgent,
+        'product_id' => 1,
+        'quantity'   => 0
+    ];
+
+    $response = $this->postJson($this->baseUrl, $data);
+    $responseJson = json_decode($response->content());
+
+    $this->assertEquals('The quantity must be greater than 0.', $responseJson->errors->quantity[0]);
+
+    $response->assertUnprocessable()
+        ->assertJsonStructure([
+            'message',
+            'errors' => [
+                'quantity' => []
             ],
         ]);
 });
@@ -100,14 +122,13 @@ test('can update existing cart item', function () {
     $cart = $this->createCart();
     $cartItem = $this->createCartItems([$product->id], $cart);
 
-    $newQuantity = 2;
-    $updatedQuantity = $cartItem[0]->quantity + $newQuantity;
+    $updatedQuantity = 2;
 
     $data = [
         'ip_address' => '127.0.0.1',
         'user_agent' => $this->faker->userAgent,
         'product_id' => $cartItem[0]->product_id,
-        'quantity'   => $newQuantity
+        'quantity'   => $updatedQuantity
     ];
 
     $response = $this->postJson($this->baseUrl, $data);

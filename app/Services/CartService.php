@@ -29,7 +29,8 @@ class CartService implements CartServiceInterface
     public function __construct(
         CartRepositoryInterface     $cartRepo,
         CartItemRepositoryInterface $cartItemRepo,
-        SessionRepositoryInterface  $sessionRepo)
+        SessionRepositoryInterface  $sessionRepo
+    )
     {
         $this->cartRepo = $cartRepo;
         $this->cartItemRepo = $cartItemRepo;
@@ -38,20 +39,6 @@ class CartService implements CartServiceInterface
 
     public function addCartItems(array $data): CartItem
     {
-        /*
-            Thought flow for adding cart items:
-
-            1. Check if the guest user has a session record. If no, create a new session record, else, retrieve the existing session record.
-            2. Check if a cart record exist for that session (guest).  If no, create a new cart record, else, retrieve the existing cart record.
-
-            NOTE: A guest user can only have a single cart and in that cart are multiple cart items (One-to-many relationship).
-
-            3. Check if the item to be added has already been added or soft deleted before.
-            4. If the record exist but was soft deleted, update the quantity with the new quantity and null the deleted_at column
-                in order to avoid creating identical cart items and prevent redundancy of data.
-            5. However, if the record exist but was not soft deleted, increment the quantity with the new quantity.
-         */
-
         $ipAddress = $data['ip_address'];
         $userAgent = $data['user_agent'];
         $productId = $data['product_id'];

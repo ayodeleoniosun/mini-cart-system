@@ -88,13 +88,11 @@ test('update existing cart item', function () {
         'ip_address' => $this->ipAddress,
         'user_agent' => $this->faker->userAgent,
         'product_id' => $product->id,
-        'quantity'   => 1,
     ];
 
     $this->cartItem->id = 1;
     $this->cartItem->cart_id = $this->cart->id;
     $this->cartItem->product_id = $data['product_id'];
-    $this->cartItem->quantity = $data['quantity'];
 
     $this->sessionRepo->shouldReceive('getOrCreateSession')
         ->once()
@@ -114,13 +112,15 @@ test('update existing cart item', function () {
     $cartItemData = [
         'cart_id'    => $this->cart->id,
         'product_id' => $product->id,
-        'quantity'   => 1,
+        'quantity'   => 5,
     ];
 
     $this->cartItemRepo->shouldReceive('update')
         ->once()
         ->with($cartItemData)
         ->andReturn($this->cartItem);
+
+    $data['quantity'] = $cartItemData['quantity'];
 
     $response = $this->service->addCartItems($data);
     $this->assertInstanceOf(CartItem::class, $response);

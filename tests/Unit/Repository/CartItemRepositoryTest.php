@@ -34,21 +34,20 @@ test('update existing cart item', function () {
     $product = $this->createProduct();
     $this->createSession();
     $cart = $this->createCart();
-    $cartItem = $this->createCartItems([$product->id], $cart);
+    $this->createCartItems([$product->id], $cart);
 
-    $newQuantity = 2;
-    $updatedQuantity = $cartItem[0]->quantity + $newQuantity;
+    $updatedQuantity = 2;
 
     $updateCartItem = $this->cartItemRepo->update([
         'cart_id'    => $cart->id,
         'product_id' => $product->id,
-        'quantity'   => 2,
+        'quantity'   => $updatedQuantity,
     ]);
 
     $this->assertInstanceOf(CartItem::class, $updateCartItem);
     $this->assertEquals($updateCartItem->product_id, $product->id);
     $this->assertEquals($updateCartItem->cart_id, $cart->id);
-    $this->assertEquals($updateCartItem->quantity, $updatedQuantity); //updated quantity = 3, instead of 2
+    $this->assertEquals($updateCartItem->quantity, $updatedQuantity);
     $this->assertNull($updateCartItem->deleted_at);
 });
 
@@ -83,7 +82,7 @@ test('re-add removed cart item', function () {
     $this->assertInstanceOf(CartItem::class, $updateCartItem);
     $this->assertEquals($updateCartItem->product_id, $product->id);
     $this->assertEquals($updateCartItem->cart_id, $cart->id);
-    $this->assertEquals($updateCartItem->quantity, 3); //updated quantity is 3 instead of 5
+    $this->assertEquals($updateCartItem->quantity, 3);
     $this->assertNull($updateCartItem->deleted_at);
 });
 

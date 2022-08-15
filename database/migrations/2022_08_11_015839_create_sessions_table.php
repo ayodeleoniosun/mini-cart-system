@@ -14,11 +14,10 @@ return new class extends Migration {
     {
         Schema::create('sessions', function (Blueprint $table) {
             $table->id();
-            $table->string('ip_address', 45)->nullable();
+            $table->string('identifier');
             $table->text('user_agent')->nullable();
             $table->timestamp('last_activity');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

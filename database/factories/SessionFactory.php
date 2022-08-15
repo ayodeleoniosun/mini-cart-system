@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Session>
@@ -17,7 +18,7 @@ class SessionFactory extends Factory
     public function definition()
     {
         return [
-            'ip_address'    => '127.0.0.1',
+            'identifier'    => Str::random(10),
             'user_agent'    => $this->faker->userAgent,
             'last_activity' => now()
         ];

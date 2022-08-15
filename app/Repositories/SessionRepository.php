@@ -17,22 +17,20 @@ class SessionRepository implements SessionRepositoryInterface
         $this->session = $session;
     }
 
-    public function getSessionByIpAddress(string $ipAddress): ?Session
+    public function getSessionByIdentifier(string $identifier): ?Session
     {
-        return $this->session->where('ip_address', $ipAddress)->first();
+        return $this->session->where('identifier', $identifier)->first();
     }
 
-    public function getOrCreateSession(string $ipAddress, string $userAgent): Session
+    public function getOrCreateSession(string $identifier, string $userAgent): Session
     {
-        $session = $this->getSessionByIpAddress($ipAddress);
+        $session = $this->session->firstOrNew([
+            'identifier' => $identifier,
+        ]);
 
-        if (!$session) {
-            $session = $this->session->create([
-                'ip_address'    => $ipAddress,
-                'user_agent'    => $userAgent,
-                'last_activity' => now()
-            ]);
-        }
+        $session->user_agent = $userAgent;
+        $session->last_activity = now();
+        $session->save();
 
         return $session;
     }

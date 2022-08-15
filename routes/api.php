@@ -16,7 +16,7 @@ use App\Http\Controllers\CartController;
 
 Route::prefix('carts')->group(function () {
     Route::controller(CartController::class)->group(function () {
-        Route::get('/', 'index')->name('cart.index');
+        Route::get('/{identifier}', 'index')->name('cart.index');
         Route::post('/', 'store')->name('cart.store');
         Route::delete('/{cartItemId}', 'delete')->name('cart.delete');
         Route::get('/items/deleted', 'getDeletedItems')->name('cart.getDeletedItems');

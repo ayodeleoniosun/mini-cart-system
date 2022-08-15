@@ -17,15 +17,15 @@ class CartController extends Controller
         $this->cartService = $cartService;
     }
 
-    public function index(Request $request)
+    public function index(string $identifier)
     {
-        return $this->cartService->getUserCartItems($request);
+        return $this->cartService->getUserCartItems($identifier);
     }
 
     public function store(AddToCartRequest $request): JsonResponse
     {
         $response = $this->cartService->addCartItems([
-            'ip_address' => $request->ip(),
+            'identifier' => $request->identifier,
             'user_agent' => $request->userAgent(),
             'product_id' => $request->product_id,
             'quantity'   => $request->quantity
@@ -36,7 +36,7 @@ class CartController extends Controller
 
     public function delete(Request $request, int $cartItemId): JsonResponse
     {
-        $this->cartService->delete($request->ip(), $cartItemId);
+        $this->cartService->delete($request->identifier, $cartItemId);
 
         return response()->deleted();
     }

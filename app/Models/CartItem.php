@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CartItem extends Model
 {
-    use SoftDeletes, HasFactory;
+    use HasFactory;
 
     protected $guarded = ['id'];
+
+    const PENDING = 'pending';
+    const REMOVED = 'removed';
 
     public function cart(): BelongsTo
     {

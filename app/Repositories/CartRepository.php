@@ -19,13 +19,7 @@ class CartRepository implements CartRepositoryInterface
 
     public function getOrCreateCart(int $sessionId): Cart
     {
-        $cart = $this->cart->where(['session_id' => $sessionId])->first();
-
-        if (!$cart) {
-            $cart = $this->cart->create(['session_id' => $sessionId]);
-        }
-
-        return $cart;
+        return $this->cart->firstOrCreate(['session_id' => $sessionId]);
     }
 
     public function hasValidCart(int $sessionId): ?Cart

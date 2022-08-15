@@ -14,26 +14,26 @@ beforeEach(function () {
     $this->sessionRepo = new SessionRepository($session);
 });
 
-test('get valid session by ip address', function () {
+test('get valid session by identifier', function () {
     $session = $this->createSession();
-    $getSession = $this->sessionRepo->getSessionByIpAddress($session->ip_address);
+    $getSession = $this->sessionRepo->getSessionByIdentifier($session->identifier);
 
     $this->assertInstanceOf(Session::class, $getSession);
-    $this->assertEquals($session->ip_address, $getSession->ip_address);
+    $this->assertEquals($session->identifier, $getSession->identifier);
 });
 
 test('non-existent session record', function () {
-    $session = $this->sessionRepo->getSessionByIpAddress('127.0.0.1');
+    $session = $this->sessionRepo->getSessionByIdentifier('12345ab');
     $this->assertNull($session);
 });
 
 test('create new session', function () {
-    $ipAddress = '127.0.0.1';
+    $identifier = 'Str::random(10)';
     $userAgent = 'Google chrome';
 
-    $session = $this->sessionRepo->getOrCreateSession($ipAddress, $userAgent);
+    $session = $this->sessionRepo->getOrCreateSession($identifier, $userAgent);
 
     $this->assertInstanceOf(Session::class, $session);
-    $this->assertEquals($session->ip_address, $ipAddress);
+    $this->assertEquals($session->identifier, $identifier);
     $this->assertEquals($session->user_agent, $userAgent);
 });

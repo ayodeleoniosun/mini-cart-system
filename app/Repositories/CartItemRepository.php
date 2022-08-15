@@ -38,8 +38,8 @@ class CartItemRepository implements CartItemRepositoryInterface
 
         $cartItem = $this->getCartItem($cartId, $productId);
 
-        if ($cartItem->trashed()) {
-            $cartItem->deleted_at = null;
+        if ($cartItem->status == CartItem::REMOVED) {
+            $cartItem->status = CartItem::PENDING;
         }
 
         $cartItem->quantity = $quantity;
@@ -55,7 +55,7 @@ class CartItemRepository implements CartItemRepositoryInterface
         return $this->cartItem->where([
             'cart_id'    => $cartId,
             'product_id' => $productId,
-        ])->withTrashed()->first();
+        ])->first();
     }
 
     public function delete(int $cartItemId, int $cartId): bool
@@ -63,7 +63,7 @@ class CartItemRepository implements CartItemRepositoryInterface
         return $this->cartItem->where([
             'id'      => $cartItemId,
             'cart_id' => $cartId
-        ])->delete();
+        ])->update(['status' => CartItem::REMOVED]);
     }
 
     public function getUserCartItems(Cart $cart): LengthAwarePaginator
@@ -73,6 +73,6 @@ class CartItemRepository implements CartItemRepositoryInterface
 
     public function getDeletedCartItems(): LengthAwarePaginator
     {
-        return $this->cartItem->onlyTrashed()->paginate($this->perPage);
+        return $this->cartItem->where('status', CartItem::REMOVED)->latest()->paginate($this->perPage);
     }
 }

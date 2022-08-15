@@ -29,8 +29,7 @@ class CartService implements CartServiceInterface
     public function __construct(
         CartRepositoryInterface     $cartRepo,
         CartItemRepositoryInterface $cartItemRepo,
-        SessionRepositoryInterface  $sessionRepo
-    )
+        SessionRepositoryInterface  $sessionRepo)
     {
         $this->cartRepo = $cartRepo;
         $this->cartItemRepo = $cartItemRepo;
@@ -39,12 +38,12 @@ class CartService implements CartServiceInterface
 
     public function addCartItems(array $data): CartItem
     {
-        $ipAddress = $data['ip_address'];
+        $identifier = $data['identifier'];
         $userAgent = $data['user_agent'];
         $productId = $data['product_id'];
         $quantity = $data['quantity'];
 
-        $session = $this->sessionRepo->getOrCreateSession($ipAddress, $userAgent);
+        $session = $this->sessionRepo->getOrCreateSession($identifier, $userAgent);
         $cart = $this->cartRepo->getOrCreateCart($session->id);
         $cartItem = $this->cartItemRepo->getCartItem($cart->id, $productId);
 
@@ -64,9 +63,9 @@ class CartService implements CartServiceInterface
     /**
      * @throws CustomException
      */
-    public function delete(string $ipAddress, int $cartItemId): bool
+    public function delete(string $identifier, int $cartItemId): bool
     {
-        $cart = $this->hasValidCart($ipAddress);
+        $cart = $this->hasValidCart($identifier);
 
         $status = $this->cartItemRepo->delete($cartItemId, $cart->id);
 
@@ -80,9 +79,9 @@ class CartService implements CartServiceInterface
     /**
      * @throws CustomException
      */
-    public function getUserCartItems(Request $request): CartItemCollection
+    public function getUserCartItems(string $identifier): CartItemCollection
     {
-        $cart = $this->hasValidCart($request->ip());
+        $cart = $this->hasValidCart($identifier);
 
         $cartItems = $this->cartItemRepo->getUserCartItems($cart);
 
@@ -98,9 +97,9 @@ class CartService implements CartServiceInterface
     /**
      * @throws CustomException
      */
-    public function hasValidCart(string $ipAddress): Cart
+    public function hasValidCart(string $identifier): Cart
     {
-        $session = $this->sessionRepo->getSessionByIpAddress($ipAddress);
+        $session = $this->sessionRepo->getSessionByIdentifier($identifier);
 
         if (!$session) {
             throw new CustomException('Invalid account.', 403);
@@ -114,6 +113,4 @@ class CartService implements CartServiceInterface
 
         return $cart;
     }
-
-    //analysis for removed cart items
 }

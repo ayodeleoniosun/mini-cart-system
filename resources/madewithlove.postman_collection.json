@@ -18,12 +18,13 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/carts",
+					"raw": "{{baseUrl}}/carts/23467b1",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
-						"carts"
+						"carts",
+						"23467b1"
 					]
 				}
 			},
@@ -61,7 +62,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"product_id\" : 1,\n    \"quantity\": 3\n}",
+					"raw": "{\n    \"product_id\" : 3,\n    \"quantity\": 5,\n    \"identifier\": \"23467b1\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -85,14 +86,23 @@
 			"request": {
 				"method": "DELETE",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"identifier\": \"23467b1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "{{baseUrl}}/carts/3",
+					"raw": "{{baseUrl}}/carts/1",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"carts",
-						"3"
+						"1"
 					]
 				}
 			},

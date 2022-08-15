@@ -64,15 +64,13 @@ test('re-add removed cart item', function () {
         'quantity'   => 2,
     ]);
 
-    //soft delete cart item
-
+    //remove cart item
     $this->cartItemRepo->delete($cartItem->id, $cart->id);
     $cartItem->refresh();
 
-    $this->assertNotNull($cartItem->deleted_at);
+    $this->assertEquals($cartItem->status, CartItem::REMOVED);
 
     //re-add removed cart item
-
     $updateCartItem = $this->cartItemRepo->update([
         'cart_id'    => $cart->id,
         'product_id' => $product->id,
@@ -83,7 +81,7 @@ test('re-add removed cart item', function () {
     $this->assertEquals($updateCartItem->product_id, $product->id);
     $this->assertEquals($updateCartItem->cart_id, $cart->id);
     $this->assertEquals($updateCartItem->quantity, 3);
-    $this->assertNull($updateCartItem->deleted_at);
+    $this->assertEquals($updateCartItem->status, CartItem::PENDING);
 });
 
 test('get existing cart item', function () {
@@ -176,7 +174,7 @@ test('get all deleted cart items', function () {
     $this->assertEquals($deletedCartItems->count(), $noOfCartItemsToDelete);
 
     $deletedCartItems->each(function ($item) use ($session, $products) {
-        $this->assertNotNull($item->deleted_at);
+        $this->assertEquals($item->status, CartItem::REMOVED);
     });
 });
 

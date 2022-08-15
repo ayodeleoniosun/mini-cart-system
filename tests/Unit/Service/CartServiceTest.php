@@ -19,7 +19,7 @@ uses(RefreshDatabase::class);
 uses()->group('cart_service_test');
 
 beforeEach(function () {
-    $this->ipAddress = '127.0.0.1';
+    $this->identifier = '12345ab';
     $this->request = \Mockery::mock(Request::class)->makePartial();
     $this->cartRepo = \Mockery::mock(CartRepositoryInterface::class);
     $this->cartItemRepo = \Mockery::mock(CartItemRepositoryInterface::class);
@@ -38,7 +38,7 @@ test('can add cart items', function () {
     $this->cart->id = 1;
 
     $data = [
-        'ip_address' => $this->ipAddress,
+        'identifier' => $this->identifier,
         'user_agent' => $this->faker->userAgent,
         'product_id' => $product->id,
         'quantity'   => 1,
@@ -51,7 +51,7 @@ test('can add cart items', function () {
 
     $this->sessionRepo->shouldReceive('getOrCreateSession')
         ->once()
-        ->with($data['ip_address'], $data['user_agent'])
+        ->with($data['identifier'], $data['user_agent'])
         ->andReturn($this->session);
 
     $this->cartRepo->shouldReceive('getOrCreateCart')
@@ -85,7 +85,7 @@ test('update existing cart item', function () {
     $this->cart->id = 1;
 
     $data = [
-        'ip_address' => $this->ipAddress,
+        'identifier' => $this->identifier,
         'user_agent' => $this->faker->userAgent,
         'product_id' => $product->id,
     ];
@@ -96,7 +96,7 @@ test('update existing cart item', function () {
 
     $this->sessionRepo->shouldReceive('getOrCreateSession')
         ->once()
-        ->with($data['ip_address'], $data['user_agent'])
+        ->with($data['identifier'], $data['user_agent'])
         ->andReturn($this->session);
 
     $this->cartRepo->shouldReceive('getOrCreateCart')
@@ -129,22 +129,22 @@ test('update existing cart item', function () {
 test('has no session record', function () {
     $this->session->id = 1;
 
-    $this->sessionRepo->shouldReceive('getSessionByIpAddress')
+    $this->sessionRepo->shouldReceive('getSessionByIdentifier')
         ->once()
-        ->with($this->ipAddress)
+        ->with($this->identifier)
         ->andReturn(null);
 
     $this->expectException(CustomException::class);
     $this->expectExceptionMessage('Invalid account.');
-    $this->service->hasValidCart($this->ipAddress);
+    $this->service->hasValidCart($this->identifier);
 });
 
 test('has no cart item', function () {
     $this->session->id = 1;
 
-    $this->sessionRepo->shouldReceive('getSessionByIpAddress')
+    $this->sessionRepo->shouldReceive('getSessionByIdentifier')
         ->once()
-        ->with($this->ipAddress)
+        ->with($this->identifier)
         ->andReturn($this->session);
 
     $this->cartRepo->shouldReceive('hasValidCart')
@@ -154,7 +154,7 @@ test('has no cart item', function () {
 
     $this->expectException(CustomException::class);
     $this->expectExceptionMessage('No cart yet.');
-    $this->service->hasValidCart($this->ipAddress);
+    $this->service->hasValidCart($this->identifier);
 });
 
 test('can delete existing cart item', function () {
@@ -162,9 +162,9 @@ test('can delete existing cart item', function () {
     $this->cart->id = 1;
     $this->cartItem->id = 1;
 
-    $this->sessionRepo->shouldReceive('getSessionByIpAddress')
+    $this->sessionRepo->shouldReceive('getSessionByIdentifier')
         ->once()
-        ->with($this->ipAddress)
+        ->with($this->identifier)
         ->andReturn($this->session);
 
     $this->cartRepo->shouldReceive('hasValidCart')
@@ -177,7 +177,7 @@ test('can delete existing cart item', function () {
         ->with($this->cartItem->id, $this->cart->id)
         ->andReturn(true);
 
-    $response = $this->service->delete($this->ipAddress, $this->cartItem->id);
+    $response = $this->service->delete($this->identifier, $this->cartItem->id);
     $this->assertTrue($response);
 });
 
@@ -186,9 +186,9 @@ test('cannot delete non-existent cart item', function () {
     $this->cart->id = 1;
     $this->cartItem->id = 1;
 
-    $this->sessionRepo->shouldReceive('getSessionByIpAddress')
+    $this->sessionRepo->shouldReceive('getSessionByIdentifier')
         ->once()
-        ->with($this->ipAddress)
+        ->with($this->identifier)
         ->andReturn($this->session);
 
     $this->cartRepo->shouldReceive('hasValidCart')
@@ -203,16 +203,16 @@ test('cannot delete non-existent cart item', function () {
 
     $this->expectException(CustomException::class);
     $this->expectExceptionMessage('Unable to delete item from cart. Check if the item exist.');
-    $this->service->delete($this->ipAddress, $this->cartItem->id);
+    $this->service->delete($this->identifier, $this->cartItem->id);
 });
 
 test('get user cart items', function () {
     $this->session->id = 1;
     $this->cart->id = 1;
 
-    $this->sessionRepo->shouldReceive('getSessionByIpAddress')
+    $this->sessionRepo->shouldReceive('getSessionByIdentifier')
         ->once()
-        ->with($this->ipAddress)
+        ->with($this->identifier)
         ->andReturn($this->session);
 
     $this->cartRepo->shouldReceive('hasValidCart')
@@ -229,7 +229,7 @@ test('get user cart items', function () {
         ->andReturn($pagination);
 
     $request = new Request();
-    $request->server->add(['REMOTE_ADDR' => $this->ipAddress]);
+    $request->server->add(['REMOTE_ADDR' => $this->identifier]);
 
     $response = $this->service->getUserCartItems($request);
     $this->assertInstanceOf(CartItemCollection::class, $response);

@@ -10,9 +10,9 @@ interface CartServiceInterface
 {
     public function addCartItems(array $data): CartItem;
 
-    public function delete(string $ipAddress, int $cartItemId): bool;
+    public function delete(string $identifier, int $cartItemId): bool;
 
-    public function getUserCartItems(Request $request): CartItemCollection;
+    public function getUserCartItems(string $identifier): CartItemCollection;
 
     public function getDeletedCartItems(): CartItemCollection;
 }

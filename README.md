@@ -1,4 +1,4 @@
-##About
+## About
 
 As part of an engineering team, you are working on an online shopping platform. The sales team wants to know which items were added to a basket, but removed before checkout. They will use this data later for targeted discounts.
 

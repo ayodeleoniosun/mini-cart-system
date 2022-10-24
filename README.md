@@ -1,7 +1,3 @@
-# Technical Assessment back-end engineer
-
-The assessment test is available [Here](resources/assessment.md).
-
 ## Getting Started
 
 * Development Requirements
